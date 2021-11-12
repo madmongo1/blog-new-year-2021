@@ -9,7 +9,7 @@
 #define NEW_YEAR_2021_HTTP_VARIANT_STREAM_HPP_E0C4D4AB638E428BB5AB2E7E67D145DB
 
 #include "async/stop_source.hpp"
-#include "config.hpp"
+#include "rhhp_config.hpp"
 #include "http/connect_options.hpp"
 #include "http/types.hpp"
 #include "util/overloaded.hpp"

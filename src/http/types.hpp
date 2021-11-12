@@ -8,7 +8,7 @@
 #ifndef NEW_YEAR_2021_HTTP_TYPES_HPP_DFB4491E8B4E48A78F634A2B321AD716
 #define NEW_YEAR_2021_HTTP_TYPES_HPP_DFB4491E8B4E48A78F634A2B321AD716
 
-#include "config.hpp"
+#include "rhhp_config.hpp"
 
 #include <iostream>
 #include <string_view>
