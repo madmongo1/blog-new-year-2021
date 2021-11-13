@@ -11,7 +11,7 @@
 namespace http
 {
 connection_cache::connection_cache(net::any_io_executor const &exec,
-                                   ssl::context &              ssl_context,
+                                   ssl::context               &ssl_context,
                                    connect_options             options)
 : impl_(std::make_unique< connection_cache_impl >(net::to_io_executor(exec),
                                                   ssl_context,
@@ -23,13 +23,14 @@ connection_cache::~connection_cache() = default;
 
 net::awaitable< response_type >
 connection_cache::call(beast::http::verb   method,
-                       const std::string & url,
+                       const std::string  &url,
                        std::string         data,
                        beast::http::fields headers,
                        request_options     options)
 {
     // DRY - define an operation that performs the inner call.
-    auto op = [&] {
+    auto op = [&]
+    {
         return impl_->call(method,
                            url,
                            std::move(data),
@@ -41,9 +42,11 @@ connection_cache::call(beast::http::verb   method,
     auto my_executor = co_await net::this_coro::executor;
 
     // either call directly or via a spawned coroutine
-    co_return impl_->get_executor() != my_executor
-        ? co_await op()
-        : co_await net::co_spawn(impl_->get_executor(), op, net::use_awaitable);
+    if (impl_->get_executor() == my_executor)
+        co_return co_await op();
+    else
+        co_return co_await net::co_spawn(
+            impl_->get_executor(), op(), net::use_awaitable);
 }
 
 }   // namespace http

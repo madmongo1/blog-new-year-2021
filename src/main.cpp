@@ -12,7 +12,7 @@
 #include <iostream>
 
 net::awaitable< void >
-visit_site(http::connection_cache &cache, std::string const &url)
+visit_site(http::connection_cache &cache, std::string url)
 {
     auto then = std::chrono::steady_clock::now();
     try
@@ -53,7 +53,7 @@ crawl()
             ++pending_count;
             net::co_spawn(
                 co_await net::this_coro::executor,
-                [&cache, url] { return visit_site(cache, url); },
+                visit_site(cache, std::move(url)),
                 [&](std::exception_ptr) {
                     if (--pending_count == 0)
                         cv.cancel_one();
