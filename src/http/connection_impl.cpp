@@ -21,14 +21,14 @@ connection_impl::connect(async::stop_token stop)
 }
 
 net::awaitable< std::tuple< error_code, response_type > >
-connection_impl::rest_call(request_class const &  request,
+connection_impl::rest_call(request_class const   &request,
                            request_options const &options)
 {
     auto response = std::make_unique< response_class >();
 
-    auto ec = stream_.is_open()
-                  ? co_await rest_call(request, *response, options)
-                  : net::error::basic_errors::not_connected;
+    auto ec = error_code(net::error::not_connected);
+    if (stream_.is_open())
+        ec = co_await rest_call(request, *response, options);
 
     if (ec && ec != net::error::operation_aborted)
     {
@@ -44,8 +44,8 @@ connection_impl::rest_call(request_class const &  request,
 }
 
 net::awaitable< error_code >
-connection_impl::rest_call(request_class const &  request,
-                           response_class &       response,
+connection_impl::rest_call(request_class const   &request,
+                           response_class        &response,
                            request_options const &options)
 {
     auto stop = options.stop;
@@ -59,10 +59,14 @@ connection_impl::rest_call(request_class const &  request,
     {
         tcp.expires_after(options.write_timeout);
         auto stopconn = stop.connect([&] { tcp.cancel(); });
-        co_await stream_.apply_visitor([&](auto &stream) {
-            return beast::http::async_write(
-                stream, request, net::redirect_error(net::use_awaitable, ec));
-        });
+        co_await stream_.apply_visitor(
+            [&](auto &stream)
+            {
+                return beast::http::async_write(
+                    stream,
+                    request,
+                    net::redirect_error(net::use_awaitable, ec));
+            });
     }
 
     if (!ec && stop.stopped())
@@ -72,13 +76,15 @@ connection_impl::rest_call(request_class const &  request,
     {
         tcp.expires_after(options.read_timeout);
         auto stopconn = stop.connect([&] { tcp.cancel(); });
-        co_await stream_.apply_visitor([&](auto &stream) {
-            return beast::http::async_read(
-                stream,
-                buf_,
-                response,
-                net::redirect_error(net::use_awaitable, ec));
-        });
+        co_await stream_.apply_visitor(
+            [&](auto &stream)
+            {
+                return beast::http::async_read(
+                    stream,
+                    buf_,
+                    response,
+                    net::redirect_error(net::use_awaitable, ec));
+            });
     }
 
     if (ec || response.need_eof())
@@ -91,7 +97,7 @@ connection_impl::rest_call(request_class const &  request,
 }
 
 connection_impl::connection_impl(net::io_strand  exec,
-                                 ssl::context &  sslctx,
+                                 ssl::context   &sslctx,
                                  std::string     hostname,
                                  std::string     port,
                                  transport_type  ttype,

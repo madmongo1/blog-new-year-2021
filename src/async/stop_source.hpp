@@ -8,6 +8,7 @@
 #define DECEMBER_2020_STOP_SOURCE_HPP
 
 #include <functional>
+#include <memory>
 #include <unordered_map>
 
 namespace async

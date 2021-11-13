@@ -22,6 +22,7 @@ urls_large_data()
         "yahoo.com",
         "baidu.com",
         "wikipedia.org",
+        /*
         "qq.com",
         "linkedin.com",
         "taobao.com",
@@ -10015,6 +10016,7 @@ urls_large_data()
         "flowplayer.org",
         "syshl.com",
         "18schoolgirlz.com"
+         */
     });
 
     return urls;
