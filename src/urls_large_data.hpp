@@ -12,7 +12,7 @@
 
 #include <vector>
 
-std::vector<char const*> const&
+std::vector< char const * > const &
 urls_large_data();
 
 #endif

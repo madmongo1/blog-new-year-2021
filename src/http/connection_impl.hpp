@@ -18,7 +18,7 @@ struct connection_impl
     using executor_type = net::io_strand;
 
     connection_impl(executor_type   exec,
-                    ssl::context &  sslctx,
+                    ssl::context   &sslctx,
                     std::string     hostname,
                     std::string     port,
                     transport_type  ttype,
@@ -31,7 +31,7 @@ struct connection_impl
     }
 
     net::awaitable< std::tuple< error_code, response_type > >
-    rest_call(request_class const &  request,
+    rest_call(request_class const   &request,
               request_options const &options = {});
 
   private:
@@ -41,12 +41,12 @@ struct connection_impl
     connect(async::stop_token stop);
 
     net::awaitable< error_code >
-    rest_call(request_class const &  request,
-              response_class &       response,
+    rest_call(request_class const   &request,
+              response_class        &response,
               request_options const &options);
 
     net::io_strand    exec_;
-    ssl::context &    ssl_ctx_;
+    ssl::context     &ssl_ctx_;
     std::string const hostname_;
     std::string const port_;
     transport_type    transport_type_;

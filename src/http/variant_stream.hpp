@@ -55,13 +55,13 @@ struct variant_stream
     {
         return visit(
             util::overloaded {
-                [](monostate &) -> std::invoke_result_t< F, tcp_layer & > {
+                [](monostate &) -> std::invoke_result_t< F, tcp_layer & >
+                {
                     assert(!"logic error - stream not open");
                     throw std::logic_error("stream not open");
                 },
-                [&](auto &stream) -> std::invoke_result_t< F, tcp_layer & > {
-                    return f(stream);
-                } },
+                [&](auto &stream) -> std::invoke_result_t< F, tcp_layer & >
+                { return f(stream); } },
             var_);
     }
 
@@ -88,10 +88,10 @@ struct variant_stream
     /// @pre is_open == false
     net::awaitable< error_code >
     connect(async::stop_token      stop,
-            ssl::context &         sslctx,
+            ssl::context          &sslctx,
             transport_type         ttype,
-            std::string const &    hostname,
-            std::string const &    port,
+            std::string const     &hostname,
+            std::string const     &port,
             connect_options const &options);
 
     tcp_layer &

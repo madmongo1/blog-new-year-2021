@@ -8,8 +8,9 @@
 #ifndef NEW_YEAR_2021_HTTP_REQUEST_OPTIONS_HPP_B5647D6CBF7C4B7CB2004F92D1171481
 #define NEW_YEAR_2021_HTTP_REQUEST_OPTIONS_HPP_B5647D6CBF7C4B7CB2004F92D1171481
 
-#include <chrono>
 #include "async/stop_source.hpp"
+
+#include <chrono>
 
 namespace http
 {
@@ -17,7 +18,7 @@ struct request_options
 {
     std::chrono::milliseconds write_timeout = std::chrono::seconds(10);
     std::chrono::milliseconds read_timeout  = std::chrono::seconds(10);
-    async::stop_token stop;
+    async::stop_token         stop;
 };
 
 }   // namespace http

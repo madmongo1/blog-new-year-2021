@@ -16,8 +16,8 @@ namespace
     net::awaitable<
         std::tuple< error_code, net::ip::tcp::resolver ::results_type > >
     resolve(async::stop_token         stop,
-            std::string const &       hostname,
-            std::string const &       port,
+            std::string const        &hostname,
+            std::string const        &port,
             std::chrono::milliseconds timeout)
     {
         error_code                            error;
@@ -43,7 +43,8 @@ namespace
             resolver.async_resolve(
                 hostname,
                 port,
-                [&](error_code ec, net::ip::tcp::resolver::results_type rslts) {
+                [&](error_code ec, net::ip::tcp::resolver::results_type rslts)
+                {
                     timer.cancel();
                     if (pending_timer)
                     {
@@ -53,21 +54,25 @@ namespace
                     pending_resolve = false;
                     cv.cancel_one();
                 });
-            timer.async_wait([&](error_code) {
-                resolver.cancel();
-                if (pending_resolve)
+            timer.async_wait(
+                [&](error_code)
                 {
-                    error = net::error::timed_out;
-                }
-                pending_timer = false;
-                cv.cancel_one();
-            });
+                    resolver.cancel();
+                    if (pending_resolve)
+                    {
+                        error = net::error::timed_out;
+                    }
+                    pending_timer = false;
+                    cv.cancel_one();
+                });
 
-            auto stopconn = stop.connect([&] {
-                error = net::error::operation_aborted;
-                timer.cancel();
-                resolver.cancel();
-            });
+            auto stopconn = stop.connect(
+                [&]
+                {
+                    error = net::error::operation_aborted;
+                    timer.cancel();
+                    resolver.cancel();
+                });
 
             while (pending_timer || pending_resolve)
             {
@@ -81,7 +86,7 @@ namespace
 
     net::awaitable< error_code >
     connect_tcp(async::stop_token                    stop,
-                tcp_layer &                          tcp,
+                tcp_layer                           &tcp,
                 net::ip::tcp::resolver::results_type results,
                 std::chrono::milliseconds            timeout)
     {
@@ -103,8 +108,8 @@ namespace
 
     net::awaitable< error_code >
     handshake(async::stop_token         stop,
-              tls_layer &               tls,
-              std::string const &       hostname,
+              tls_layer                &tls,
+              std::string const        &hostname,
               std::chrono::milliseconds timeout)
     {
         error_code ec;
@@ -133,10 +138,10 @@ namespace
 
 net::awaitable< error_code >
 variant_stream::connect(async::stop_token      stop,
-                        ssl::context &         sslctx,
+                        ssl::context          &sslctx,
                         transport_type         ttype,
-                        std::string const &    hostname,
-                        std::string const &    port,
+                        std::string const     &hostname,
+                        std::string const     &port,
                         connect_options const &options)
 {
     assert(!is_open());
@@ -189,7 +194,7 @@ variant_stream::close()
 {
     if (is_open())
     {
-        auto &     tcp = get_tcp_layer();
+        auto      &tcp = get_tcp_layer();
         error_code ec;
         tcp.socket().shutdown(tcp_layer::socket_type::shutdown_both, ec);
         tcp.close();

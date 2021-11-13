@@ -26,14 +26,14 @@ struct connection_cache_impl
     using executor_type = net::io_strand;
 
     connection_cache_impl(net::io_strand  exec,
-                          ssl::context &  ssl_ctx,
+                          ssl::context   &ssl_ctx,
                           connect_options options = {});
 
     ~connection_cache_impl();
 
     net::awaitable< response_type >
     call(verb                method,
-         std::string const & url,
+         std::string const  &url,
          std::string         data    = {},
          beast::http::fields headers = {},
          request_options     options = {});
@@ -96,7 +96,7 @@ struct connection_cache_impl
 
   private:
     net::io_strand  exec_;
-    ssl::context &  ssl_ctx_;
+    ssl::context   &ssl_ctx_;
     connect_options options_;
 
     std::size_t max_connections_per_host_ = 2;

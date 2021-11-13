@@ -51,13 +51,13 @@ crawl()
         {
             auto url = std::string("https://") + hostname + "/";
             ++pending_count;
-            net::co_spawn(
-                co_await net::this_coro::executor,
-                visit_site(cache, std::move(url)),
-                [&](std::exception_ptr) {
-                    if (--pending_count == 0)
-                        cv.cancel_one();
-                });
+            net::co_spawn(co_await net::this_coro::executor,
+                          visit_site(cache, std::move(url)),
+                          [&](std::exception_ptr)
+                          {
+                              if (--pending_count == 0)
+                                  cv.cancel_one();
+                          });
         }
 
     std::cout << "waiting for " << pending_count << " requests\n";
