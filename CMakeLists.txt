@@ -1,12 +1,21 @@
 cmake_minimum_required(VERSION 3.17)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
 
 project(new_year_2021)
+option(ENABLE_SANITIZERS OFF)
+if (ENABLE_SANITIZERS)
+    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+    option(SANITIZE_ADDRESS OFF)
+    option(SANITIZE_MEMORY OFF)
+    option(SANITIZE_THREAD OFF)
+    option(SANITIZE_UNDEFINED OFF)
+    find_package(Sanitizers)
+else()
+    function(add_sanitizers)
+    endfunction()
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
-
-find_package(Sanitizers)
 
 find_package(Boost COMPONENTS system REQUIRED)
 if (Boost_VERSION VERSION_LESS 1.74)
