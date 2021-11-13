@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.17)
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+
 project(new_year_2021)
 
 set(CMAKE_CXX_STANDARD 20)
+
+find_package(Sanitizers)
 
 find_package(Boost COMPONENTS system REQUIRED)
 if (Boost_VERSION VERSION_LESS 1.74)
@@ -12,6 +17,8 @@ find_package(Threads)
 
 file(GLOB_RECURSE src_files CONFIGURE_DEPENDS "src/*.cpp" "src/*.hpp")
 add_executable(new_year_2021 ${src_files})
+add_sanitizers(new_year_2021)
+
 target_link_libraries(new_year_2021 PUBLIC
         Boost::system
         OpenSSL::SSL OpenSSL::Crypto
