@@ -11,11 +11,12 @@
 namespace http
 {
 connection_cache::connection_cache(net::any_io_executor const &exec,
-                                   ssl::context               &ssl_context,
+                                   ssl::context &              ssl_context,
                                    connect_options             options)
-: impl_(std::make_unique< connection_cache_impl >(net::to_io_executor(exec),
-                                                  ssl_context,
-                                                  std::move(options)))
+: impl_(std::make_unique< connection_cache_impl >(
+      net::new_strand(net::to_io_executor(exec)),
+      ssl_context,
+      std::move(options)))
 {
 }
 

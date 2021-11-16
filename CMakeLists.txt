@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 
 
 project(new_year_2021)
+option(MULTI_THREADED OFF)
 option(ENABLE_SANITIZERS OFF)
 if (ENABLE_SANITIZERS)
     set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
@@ -33,6 +34,9 @@ target_link_libraries(new_year_2021 PUBLIC
         OpenSSL::SSL OpenSSL::Crypto
         Threads::Threads)
 target_include_directories(new_year_2021 PRIVATE src)
+if(MULTI_THREADED)
+    target_compile_definitions(new_year_2021 PUBLIC MULTI_THREADED)
+endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(new_year_2021 PUBLIC -fcoroutines-ts -stdlib=libc++)
