@@ -135,19 +135,20 @@ connection_cache_impl::call(verb                method,
     request.prepare_payload();
 
     auto op = [&]
-    { return connection.connection->rest_call(request, options); };
+    { return connection.connection()->rest_call(request, options); };
 
     auto sel = [&](bool cond)
     {
         if (cond)
             return op();
         else
-            return net::co_spawn(
-                connection.connection->get_executor(), op, net::use_awaitable);
+            return net::co_spawn(connection.connection()->get_executor(),
+                                 op(),
+                                 net::use_awaitable);
     };
 
     auto [ec, response] =
-        co_await sel(connection.connection->get_executor() == exec_);
+        co_await sel(connection.connection()->get_executor() == exec_);
 
     replace_connection(std::move(connection));
 
@@ -182,20 +183,25 @@ connection_cache_impl::acquire_connection(connection_key const &key)
     {
         // get a span of known connections for this endpoint
         auto [first, last] = connection_map_.equal_range(key);
+        const auto connection_count =
+            static_cast< std::size_t >(std::distance(first, last));
 
         // search the span for an avaialable connection
         for (; first != last; ++first)
-            if (first->second)
-                co_return active_connection { .connection =
-                                                  std::move(first->second),
-                                              .location = first,
-                                              .per_host_condition_location =
-                                                  icond };
-
-        // if no available connections, see if we can create a new one
-        if (static_cast< std::size_t >(std::distance(first, last)) <
-            max_connections_per_host_)
         {
+            if (first->second)
+            {
+                std::cout << "available connection found: " << key << "\n";
+                co_return active_connection(*first);
+            }
+        }
+
+        std::cout << "no available connection found: " << key;
+        // if no available connections, see if we can create a new one
+        if (connection_count < max_connections_per_host_)
+        {
+            std::cout << ", connection count=" << connection_count
+                      << ", creating\n";
             auto candidate =
                 std::make_unique< connection_impl >(net::new_strand(exec_),
                                                     ssl_ctx_,
@@ -204,17 +210,22 @@ connection_cache_impl::acquire_connection(connection_key const &key)
                                                     key.scheme,
                                                     options_);
             auto loc =
-                connection_map_.emplace_hint(last, key, connection_type());
+                connection_map_.emplace_hint(last, key, std::move(candidate));
 
-            co_return active_connection { .connection = std::move(candidate),
-                                          .location   = loc,
-                                          .per_host_condition_location =
-                                              icond };
+            auto [f, l] = connection_map_.equal_range(key);
+            std::cout << "emplaced connection for " << key << ", count is now "
+                      << static_cast< std::size_t >(std::distance(f, l))
+                      << '\n';
+
+            co_return active_connection(*loc);
         }
 
         // if not possible, then wait for a connection to become available
-        co_await icond->second.async_wait(
-            asio::experimental::as_single(net::use_awaitable));
+        std::cout << ", connection count=" << connection_count << ", waiting\n";
+        auto ec = error_code();
+        co_await icond->second.async_wait(asio::experimental::as_single(
+            net::redirect_error(net::use_awaitable, ec)));
+        std::cout << "finished waiting: " << key << '\n';
     }
 }
 
@@ -222,20 +233,41 @@ void
 connection_cache_impl::replace_connection(
     connection_cache_impl::active_connection conn)
 {
-    assert(!conn.location->second.get());
+    std::cout << "replacing connection: " << conn.key() << "\n";
 
-    // replace the connection into the connection map
-    conn.location->second = std::move(conn.connection);
-
+    assert(conn.connection());
+    assert(!conn.cached_connection());
+    conn.replace_connection();
+    assert(!conn.connection());
+    assert(conn.cached_connection());
     // notify the per-host condition variable that there are connections
     // available for the current host.
-    conn.per_host_condition_location->second.cancel_one();
+    auto icv = max_per_host_conditions_.find(conn.key());
+    assert(icv != max_per_host_conditions_.end());
+    icv->second.cancel_one();
 }
 
 const connection_cache_impl::executor_type &
 connection_cache_impl::get_executor() const
 {
     return exec_;
+}
+
+connection_cache_impl::active_connection::active_connection(
+    connection_map::value_type &map_loc)
+: map_value_(map_loc)
+, connection_(std::move(cached_connection()))
+{
+}
+
+void
+connection_cache_impl::active_connection::replace_connection()
+{
+    assert(connection());
+    assert(!cached_connection());
+    map_value_.second = std::move(connection_);
+    assert(!connection());
+    assert(cached_connection());
 }
 
 }   // namespace http

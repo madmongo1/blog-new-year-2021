@@ -51,9 +51,37 @@ struct connection_cache_impl
 
     struct active_connection
     {
-        connection_type                  connection;
-        connection_map::iterator         location;
-        per_host_condition_map::iterator per_host_condition_location;
+        active_connection(connection_map::value_type &map_loc);
+
+        connection_type const &
+        connection() const
+        {
+            return connection_;
+        }
+
+        void
+        replace_connection();
+
+        connection_type &
+        cached_connection()
+        {
+            return map_value_.second;
+        }
+
+        connection_key const &
+        key() const
+        {
+            return map_value_.first;
+        }
+
+      private:
+        /// A reference to the value_type in the connection map.
+        /// The active connection implementation will be moved here when the
+        /// connection is no longer needed
+        connection_map::value_type &map_value_;
+
+        /// A pointer to the active connection implementation
+        connection_type connection_;
     };
 
     net::awaitable< active_connection >
@@ -75,8 +103,7 @@ struct connection_cache_impl
     std::unordered_multimap< connection_key,
                              std::unique_ptr< connection_impl > >
         connection_map_;
-    std::unordered_map< connection_key, net::steady_timer >
-        max_per_host_conditions_;
+    per_host_condition_map max_per_host_conditions_;
 
     std::size_t       max_concurrent_requests_ = 1000;
     std::size_t       request_count_           = 0;

@@ -7,6 +7,8 @@
 
 #include "connection_key.hpp"
 
+#include <ostream>
+
 namespace http
 {
 
@@ -22,4 +24,9 @@ operator==(connection_key const &a, connection_key const &b)
     return a.as_tie() == b.as_tie();
 }
 
+std::ostream &
+operator<<(std::ostream &os, connection_key const &k)
+{
+    return os << k.scheme << "://" << k.hostname << ':' << k.port;
+}
 }

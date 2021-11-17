@@ -13,6 +13,7 @@
 #include <boost/functional/hash.hpp>
 
 #include <functional>
+#include <iosfwd>
 #include <string>
 
 namespace http
@@ -28,6 +29,10 @@ struct connection_key
     {
         return std::tie(hostname, port, scheme);
     }
+
+  private:
+    friend std::ostream &
+    operator<<(std::ostream &os, connection_key const &k);
 };
 
 std::size_t

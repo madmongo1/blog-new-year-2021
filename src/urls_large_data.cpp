@@ -15,7 +15,7 @@
 std::vector<char const*> const&
 urls_large_data()
 {
-    static std::vector <char const*> const urls ({
+    static std::vector< char const * > const urls({
         "google.com",
         "facebook.com",
         "youtube.com",
