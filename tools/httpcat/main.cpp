@@ -53,7 +53,7 @@ main(int argc, char **argv)
     desc.add_options()
         ("help,h", "produce a help message")
         ("verbose,v", "verbose output")
-        ("url", po::value<std::string>(), "input file");
+        ("url", po::value<std::vector<std::string>>(), "input file");
 
     po::positional_options_description p;
     p.add("url", -1);
@@ -71,13 +71,15 @@ main(int argc, char **argv)
         std::cerr << "No input file";
         return -1;
     }
-    auto url = vm["url"].as<std::string>();
+    auto urls = vm["url"].as<std::vector<std::string>>();
     bool verbose = vm.count("verbose");
 
     net::io_context ioctx;
 
-    net::co_spawn(
-        ioctx.get_executor(), visit_site(url, verbose), net::detached);
+    for (auto const &url: urls) {
+        net::co_spawn(
+            ioctx.get_executor(), visit_site(url, verbose), net::detached);
+    }
 
     ioctx.run();
 }
