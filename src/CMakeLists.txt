@@ -9,8 +9,9 @@ endif ()
 find_package(OpenSSL COMPONENTS)
 find_package(Threads)
 
-file(GLOB_RECURSE src_files CONFIGURE_DEPENDS "*.cpp" "*.hpp")
-add_library(${LIB_TARGET} STATIC ${src_files})
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "*.hpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "*.cpp")
+add_library(${LIB_TARGET} STATIC ${HEADERS} ${SOURCES})
 if (ENABLE_SANITIZERS)
     add_sanitizers(${LIB_TARGET})
 endif()
@@ -25,3 +26,9 @@ target_include_directories(${LIB_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 include(RhhpUtil)
 rhhp_setup_compiler(${LIB_TARGET})
+
+install(TARGETS ${LIB_TARGET} DESTINATION ${LIBRARY_INSTALL_DIR})
+
+install(FILES
+ ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIB_TARGET}
+)

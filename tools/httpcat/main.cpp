@@ -14,10 +14,10 @@
 #include <iostream>
 
 net::awaitable< void >
-visit_site(std::string const &url, bool verbose = false)
+visit_site(http::connection_cache &cache, std::string const &url, bool verbose = false)
 {
-    http::connection_cache cache(co_await net::this_coro::executor);
-    auto                   then = std::chrono::steady_clock::now();
+    auto then = std::chrono::steady_clock::now();
+
     try
     {
         auto result = co_await cache.call(http::verb::get, url);
@@ -76,9 +76,10 @@ main(int argc, char **argv)
 
     net::io_context ioctx;
 
+    http::connection_cache cache(ioctx.get_executor());
     for (auto const &url: urls) {
         net::co_spawn(
-            ioctx.get_executor(), visit_site(url, verbose), net::detached);
+            ioctx.get_executor(), visit_site(cache, url, verbose), net::detached);
     }
 
     ioctx.run();

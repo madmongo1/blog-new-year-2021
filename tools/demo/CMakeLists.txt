@@ -10,3 +10,5 @@ target_link_libraries(${BIN_TARGET} rhhp)
 
 include(RhhpUtil)
 rhhp_setup_compiler(${BIN_TARGET})
+
+install(TARGETS ${BIN_TARGET} DESTINATION ${BINARY_INSTALL_DIR})

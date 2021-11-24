@@ -21,6 +21,8 @@ option(BUILD_TOOLS "Build example tools" ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
+include(GNUInstallDirs)
+
 add_subdirectory(src)
 if (BUILD_TOOLS)
     add_subdirectory(tools)
