@@ -12,6 +12,7 @@
 
 # Generated files
 .idea/**/contentModel.xml
+CMakeLists.txt.user*
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -72,3 +73,8 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+# Common use
+/build
+
+# Temporary files
+*.swp

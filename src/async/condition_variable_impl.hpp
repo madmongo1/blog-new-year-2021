@@ -8,7 +8,7 @@
 #ifndef DECEMBER_2020_CONDITION_VARIABLE_IMPL_HPP
 #define DECEMBER_2020_CONDITION_VARIABLE_IMPL_HPP
 
-#include "config.hpp"
+#include "rhhp_config.hpp"
 
 namespace async
 {

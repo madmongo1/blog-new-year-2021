@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "config.hpp"
+#include "rhhp_config.hpp"
 #include "http/connection_cache.hpp"
 #include "urls_large_data.hpp"
 
@@ -51,13 +51,13 @@ crawl()
         {
             auto url = std::string("https://") + hostname + "/";
             ++pending_count;
-            net::co_spawn(
-                co_await net::this_coro::executor,
-                visit_site(cache, std::move(url)),
-                [&](std::exception_ptr) {
-                    if (--pending_count == 0)
-                        cv.cancel_one();
-                });
+            net::co_spawn(co_await net::this_coro::executor,
+                          visit_site(cache, std::move(url)),
+                          [&](std::exception_ptr)
+                          {
+                              if (--pending_count == 0)
+                                  cv.cancel_one();
+                          });
         }
 
     std::cout << "waiting for " << pending_count << " requests\n";

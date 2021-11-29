@@ -8,7 +8,7 @@
 #ifndef NEW_YEAR_2021_DEFAULT_SSL_CONTEXT_HPP
 #define NEW_YEAR_2021_DEFAULT_SSL_CONTEXT_HPP
 
-#include "config.hpp"
+#include "rhhp_config.hpp"
 
 namespace http
 {

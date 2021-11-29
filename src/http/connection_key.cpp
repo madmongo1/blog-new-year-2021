@@ -29,4 +29,4 @@ operator<<(std::ostream &os, connection_key const &k)
 {
     return os << k.scheme << "://" << k.hostname << ':' << k.port;
 }
-}
+}   // namespace http

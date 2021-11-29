@@ -21,13 +21,13 @@ struct connection_cache_impl;
 struct connection_cache
 {
     connection_cache(net::any_io_executor const &exec,
-                     ssl::context &  ssl_context = default_ssl_context(),
+                     ssl::context   &ssl_context = default_ssl_context(),
                      connect_options options     = {});
     ~connection_cache();
 
     net::awaitable< response_type >
     call(beast::http::verb   method,
-         std::string const & url,
+         std::string const  &url,
          std::string         data    = {},
          beast::http::fields headers = {},
          request_options     options = {});
