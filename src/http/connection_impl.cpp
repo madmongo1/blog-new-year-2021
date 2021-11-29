@@ -89,7 +89,14 @@ connection_impl::rest_call(request_class const   &request,
 
     if (ec || response.need_eof())
     {
-        tcp.socket().shutdown(net::ip::tcp::socket::shutdown_both, ec);
+        if (ec)
+        {
+            tcp.socket().shutdown(net::ip::tcp::socket::shutdown_both);
+        }
+        else
+        {
+            tcp.socket().shutdown(net::ip::tcp::socket::shutdown_both, ec);
+        }
         stream_.close();
     }
 
